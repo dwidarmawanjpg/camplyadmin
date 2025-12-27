@@ -228,6 +228,7 @@
                 const [isNewCustomer, setIsNewCustomer] = useState(true);
                 const [walkinPayMethod, setWalkinPayMethod] = useState("Cash");
                 const [rentalDuration, setRentalDuration] = useState(1);
+                const [walkinStartDate, setWalkinStartDate] = useState(new Date().toISOString().split('T')[0]);
 
                 // PICKUP
                 const checkPickup = (e) => {
@@ -278,19 +279,29 @@
                     }));
                 };
 
+                const getWalkinReturnDate = () => {
+                    const date = new Date(walkinStartDate);
+                    date.setDate(date.getDate() + parseInt(rentalDuration));
+                    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                };
+
                 const finishWalkin = () => {
                     if(!walkinCustomerPhone || !walkinCustomerName || cart.length === 0) return alert("Lengkapi data!");
                     
                     const itemTotal = cart.reduce((a,b)=>a+(b.price*b.qty),0);
                     const grandTotal = itemTotal * rentalDuration;
 
+                    const pickupDateObj = new Date(walkinStartDate);
+                    const dueDateObj = new Date(pickupDateObj);
+                    dueDateObj.setDate(dueDateObj.getDate() + parseInt(rentalDuration));
+
                     const newOrder = {
                         id: `POS-${Math.floor(Math.random()*9000)}`,
                         customer: walkinCustomerName,
                         phone: walkinCustomerPhone,
                         items: cart,
-                        pickupDate: new Date().toISOString(),
-                        dueDate: new Date(Date.now() + (rentalDuration * 86400000)).toISOString(),
+                        pickupDate: pickupDateObj.toISOString(),
+                        dueDate: dueDateObj.toISOString(),
                         status: 'Sedang Disewa',
                         paymentStatus: 'Lunas',
                         paymentMethod: walkinPayMethod,
@@ -419,9 +430,19 @@
                                     />
                                     
                                     <h4 className="font-bold mb-2">Detail Sewa</h4>
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="text-sm">Durasi (Hari)</span>
-                                        <input type="number" min="1" value={rentalDuration} onChange={e=>setRentalDuration(e.target.value)} className="w-16 border p-1 rounded text-center" />
+                                    <div className="space-y-2 mb-4">
+                                        <div>
+                                            <label className="text-xs text-slate-500 block mb-1">Mulai Sewa</label>
+                                            <input type="date" value={walkinStartDate} min={new Date().toISOString().split('T')[0]} onChange={e=>setWalkinStartDate(e.target.value)} className="w-full border p-2 rounded text-sm" />
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm">Durasi (Hari)</span>
+                                            <input type="number" min="1" value={rentalDuration} onChange={e=>setRentalDuration(e.target.value)} className="w-16 border p-1 rounded text-center" />
+                                        </div>
+                                        <div className="bg-slate-100 p-2 rounded text-xs flex justify-between">
+                                            <span>Wajib Kembali:</span>
+                                            <span className="font-bold text-red-600">{getWalkinReturnDate()}</span>
+                                        </div>
                                     </div>
 
                                     <h4 className="font-bold mb-2">Keranjang</h4>
