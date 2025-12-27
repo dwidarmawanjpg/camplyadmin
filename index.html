@@ -56,6 +56,7 @@
             address: "Jl. A. Yani No. 88, Singaraja",
             mapsUrl: "https://goo.gl/maps/abc",
             hours: "09:00 - 21:00",
+            description: "Penyewaan alat camping terlengkap dan terpercaya di Singaraja.",
             isOpen: true
         };
 
@@ -789,6 +790,58 @@
                 );
             };
 
+            const SettingsView = () => {
+                const [formData, setFormData] = useState({...profile});
+                const [passData, setPassData] = useState({ current: "", new: "", confirm: "" });
+
+                const handleSaveProfile = (e) => {
+                    e.preventDefault();
+                    setProfile(formData);
+                    alert("Profil Toko Berhasil Diperbarui!");
+                };
+
+                const handleChangePassword = (e) => {
+                    e.preventDefault();
+                    if (passData.current !== "admin123") return alert("Kata sandi saat ini salah!");
+                    if (passData.new.length < 8) return alert("Kata sandi baru minimal 8 karakter!");
+                    if (passData.new !== passData.confirm) return alert("Konfirmasi kata sandi tidak cocok!");
+                    
+                    alert("Kata sandi berhasil diubah!");
+                    setPassData({ current: "", new: "", confirm: "" });
+                };
+
+                return (
+                    <div className="fade-in max-w-4xl">
+                        <h2 className="text-2xl font-bold mb-6">Pengaturan Toko</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="bg-white p-6 rounded-xl shadow-sm border">
+                                <h3 className="font-bold text-lg mb-4 text-slate-800">Profil Toko</h3>
+                                <form onSubmit={handleSaveProfile} className="space-y-4">
+                                    <div><label className="block text-xs font-bold text-slate-500 mb-1">Nama Toko</label><input type="text" value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})} className="w-full border p-2 rounded" /></div>
+                                    <div><label className="block text-xs font-bold text-slate-500 mb-1">Deskripsi Toko</label><textarea value={formData.description || ""} onChange={e=>setFormData({...formData, description: e.target.value})} className="w-full border p-2 rounded" rows="3"></textarea></div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div><label className="block text-xs font-bold text-slate-500 mb-1">Jam Operasional</label><input type="text" value={formData.hours} onChange={e=>setFormData({...formData, hours: e.target.value})} className="w-full border p-2 rounded" /></div>
+                                        <div><label className="block text-xs font-bold text-slate-500 mb-1">No. Telepon Owner</label><input type="text" value={formData.phone} onChange={e=>setFormData({...formData, phone: e.target.value})} className="w-full border p-2 rounded" /></div>
+                                    </div>
+                                    <div><label className="block text-xs font-bold text-slate-500 mb-1">Alamat / Lokasi</label><textarea value={formData.address} onChange={e=>setFormData({...formData, address: e.target.value})} className="w-full border p-2 rounded" rows="2"></textarea></div>
+                                    <div><label className="block text-xs font-bold text-slate-500 mb-1">Link Google Maps</label><input type="text" value={formData.mapsUrl} onChange={e=>setFormData({...formData, mapsUrl: e.target.value})} className="w-full border p-2 rounded text-blue-600" /></div>
+                                    <button className="bg-slate-900 text-white px-4 py-2 rounded font-bold w-full hover:bg-slate-800">Simpan Profil</button>
+                                </form>
+                            </div>
+                            <div className="bg-white p-6 rounded-xl shadow-sm border h-fit">
+                                <h3 className="font-bold text-lg mb-4 text-slate-800">Ganti Kata Sandi</h3>
+                                <form onSubmit={handleChangePassword} className="space-y-4">
+                                    <div><label className="block text-xs font-bold text-slate-500 mb-1">Kata Sandi Saat Ini</label><input type="password" value={passData.current} onChange={e=>setPassData({...passData, current: e.target.value})} className="w-full border p-2 rounded" /></div>
+                                    <div><label className="block text-xs font-bold text-slate-500 mb-1">Kata Sandi Baru</label><input type="password" value={passData.new} onChange={e=>setPassData({...passData, new: e.target.value})} className="w-full border p-2 rounded" /></div>
+                                    <div><label className="block text-xs font-bold text-slate-500 mb-1">Konfirmasi Kata Sandi Baru</label><input type="password" value={passData.confirm} onChange={e=>setPassData({...passData, confirm: e.target.value})} className="w-full border p-2 rounded" /></div>
+                                    <button className="bg-red-600 text-white px-4 py-2 rounded font-bold w-full hover:bg-red-700">Ubah Kata Sandi</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
             const CustomerView = () => (
                 <div className="fade-in">
                     <h2 className="text-2xl font-bold mb-6">CRM Pelanggan</h2>
@@ -835,6 +888,7 @@
                     case 'customers': return <CustomerView />;
                     case 'finance': return <FinanceView />;
                     case 'reviews': return <ReviewsView />;
+                    case 'settings': return <SettingsView />;
                     default: return <DashboardView />;
                 }
             };
@@ -844,7 +898,7 @@
                     <div className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
                         <div className="p-6 border-b border-slate-800"><h1 className="text-2xl font-bold">CAMPLY <span className="text-green-500">MITRA</span></h1></div>
                         <nav className="flex-1 p-4 space-y-1 overflow-y-auto text-sm font-medium">
-                            {['dashboard', 'pos', 'return', 'orders', 'inventory', 'finance', 'customers', 'reviews'].map(tab => (
+                            {['dashboard', 'pos', 'return', 'orders', 'inventory', 'finance', 'customers', 'reviews', 'settings'].map(tab => (
                                 <button key={tab} onClick={()=>setActiveTab(tab)} className={`w-full text-left px-4 py-3 rounded capitalize ${activeTab===tab?'sidebar-active text-white':'text-slate-400 hover:text-white'}`}>{tab}</button>
                             ))}
                         </nav>
